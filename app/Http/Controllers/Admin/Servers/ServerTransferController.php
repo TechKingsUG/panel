@@ -72,6 +72,11 @@ class ServerTransferController extends Controller
         $this->daemonConfigurationRepository = $daemonConfigurationRepository;
     }
 
+    public function transferApi(Request $request, Server $server)
+    {
+        $this->transfer($request, $server, true);
+    }
+
     /**
      * Starts a transfer of a server to a new node.
      *
@@ -79,7 +84,7 @@ class ServerTransferController extends Controller
      *
      * @throws \Throwable
      */
-    public function transfer(Request $request, Server $server)
+    public function transfer(Request $request, Server $server, bool $isApi = false)
     {
         $validatedData = $request->validate([
             'node_id' => 'required|exists:nodes,id',
@@ -121,6 +126,9 @@ class ServerTransferController extends Controller
             $this->alert->danger(trans('admin/server.alerts.transfer_not_viable'))->flash();
         }
 
+        if ($isApi) {
+            return response()->json(["message" => "success"]);
+        }
         return redirect()->route('admin.servers.view.manage', $server->id);
     }
 
